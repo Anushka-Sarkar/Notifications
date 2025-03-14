@@ -1,29 +1,33 @@
-// backend/server.js
-require('dotenv').config();
-
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const notificationController = require('./controllers/notificationController');
+const dotenv = require('dotenv');
+
+// Import Routes
+const eventRoutes = require('./routes/eventRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const employeeRoutes = require('./routes/employeeRoutes'); // Added Employee Routes
+
+dotenv.config();
 
 const app = express();
+app.use(express.json());
 
-// Middleware
-app.use(bodyParser.json());
-app.use(cors());
+// Connect to MongoDB
+mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log(' MongoDB connected'))
+  .catch(err => console.error(' MongoDB connection error:', err));
 
-// Connect to MongoDB using provided URI
-const MONGO_URI = 'mongodb://localhost:27017/db2';
-mongoose.connect(MONGO_URI)
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
+// Register API Routes
+app.use('/api/events', eventRoutes);
+app.use('/api/notifications', notificationRoutes); // Now follows correct structure
+app.use('/api/employees', employeeRoutes); // Added Employee API
 
-// Routes
-app.post('/api/events', notificationController.createEvent);
-
-// Start server
+//  Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
+
+
+
+

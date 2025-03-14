@@ -1,12 +1,14 @@
+const express = require('express');
+const router = express.Router();
 const Employee = require('../models/Employee');
 
-// 📌 Get all employee notifications (Pending & In Progress tasks)
-exports.getNotifications = async (req, res) => {
+// 📌 Fetch pending/in-progress tasks for all employees
+router.get('/notifications', async (req, res) => {
   try {
-    // Fetch all employees and their tasks
+    // Fetch employees and their tasks
     const employees = await Employee.find({}, 'name email tasks');
 
-    // Extract relevant task notifications
+    // Extract tasks that are still pending or in progress
     const notifications = employees.flatMap(emp =>
       emp.tasks
         .filter(task => task.status === "Pending" || task.status === "In Progress")
@@ -26,4 +28,7 @@ exports.getNotifications = async (req, res) => {
     console.error('Error fetching notifications:', error);
     res.status(500).json({ error: 'Failed to fetch notifications' });
   }
-};
+});
+
+module.exports = router;
+
